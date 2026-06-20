@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đọc thử sách</title>
+
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body{
+            background:#f5f5f5;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            padding:20px;
+        }
+
+        .pdf-container{
+            width:90%;
+            max-width:900px;
+            background:#fff;
+            padding:20px;
+            border-radius:12px;
+            box-shadow:0 2px 10px rgba(0,0,0,0.15);
+            text-align:center;
+        }
+
+        canvas{
+            max-width:100%;
+            border:1px solid #ddd;
+        }
+
+        .controls{
+            margin-top:15px;
+            display:flex;
+            justify-content:center;
+            gap:10px;
+            flex-wrap:wrap;
+        }
+
+        button{
+            padding:10px 20px;
+            border:none;
+            border-radius:8px;
+            cursor:pointer;
+            font-size:16px;
+        }
+
+        .btn{
+            background:#007bff;
+            color:white;
+        }
+
+        .btn:hover{
+            opacity:0.9;
+        }
+
+        .contact{
+            margin-top:30px;
+            display:flex;
+            gap:15px;
+            flex-wrap:wrap;
+            justify-content:center;
+        }
+
+        .zalo{
+            background:#0068ff;
+            color:white;
+        }
+
+        .facebook{
+            background:#1877f2;
+            color:white;
+        }
+
+        .page-info{
+            margin-top:10px;
+            font-weight:bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="pdf-container">
+    <h2>Đọc thử sách</h2>
+
+    <canvas id="pdf-render"></canvas>
+
+    <div class="page-info">
+        Trang <span id="page-num">1</span> /
+        <span id="page-count">0</span>
+    </div>
+
+    <div class="controls">
+        <button class="btn" id="prev-page">◀ Trang trước</button>
+        <button class="btn" id="next-page">Trang sau ▶</button>
+    </div>
+
+    <div class="contact">
+        <a href="https://zalo.me/84901234567" target="_blank">
+            <button class="zalo">💬 Liên hệ mua sách qua Zalo</button>
+        </a>
+
+        <a href="https://facebook.com/your-facebook" target="_blank">
+            <button class="facebook">📘 Liên hệ qua Facebook</button>
+        </a>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+<script>
+    const url = './sample/quantumcomputing.pdf'; // Tên file PDF
+
+    let pdfDoc = null,
+        pageNum = 1,
+        pageIsRendering = false,
+        pageNumIsPending = null;
+
+    const scale = 1.5,
+          canvas = document.getElementById('pdf-render'),
+          ctx = canvas.getContext('2d');
+
+    const renderPage = num => {
+        pageIsRendering = true;
+
+        pdfDoc.getPage(num).then(page => {
+            const viewport = page.getViewport({ scale });
+
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            const renderCtx = {
+                canvasContext: ctx,
+                viewport
+            };
+
+            page.render(renderCtx).promise.then(() => {
+                pageIsRendering = false;
+
+                if(pageNumIsPending !== null){
+                    renderPage(pageNumIsPending);
+                    pageNumIsPending = null;
+                }
+            });
+
+            document.getElementById('page-num').textContent = num;
+        });
+    };
+
+    const queueRenderPage = num => {
+        if(pageIsRendering){
+            pageNumIsPending = num;
+        }else{
+            renderPage(num);
+        }
+    };
+
+    const showPrevPage = () => {
+        if(pageNum <= 1) return;
+        pageNum--;
+        queueRenderPage(pageNum);
+    };
+
+    const showNextPage = () => {
+        if(pageNum >= pdfDoc.numPages) return;
+        pageNum++;
+        queueRenderPage(pageNum);
+    };
+
+    pdfjsLib.getDocument(url).promise.then(pdfDoc_ => {
+        pdfDoc = pdfDoc_;
+
+        document.getElementById('page-count').textContent =
+            pdfDoc.numPages;
+
+        renderPage(pageNum);
+    });
+
+    document.getElementById('prev-page')
+        .addEventListener('click', showPrevPage);
+
+    document.getElementById('next-page')
+        .addEventListener('click', showNextPage);
+</script>
+
+</body>
+</html>
