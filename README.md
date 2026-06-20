@@ -13,9 +13,7 @@ thực tiễn của điện toán lượng tử.
 
 [💬 Inbox Zalo để mua sách](https://zalo.me/0961525512)
 
-Hoặc quét mã QR:
-
-![Zalo QR](images/qr_zalo.png)
+Hoặc liên hệ zalo : 0961525512
 
 ### Facebook
 💬 Inbox Facebook: https://web.facebook.com/profile.php?id=61585687472645
