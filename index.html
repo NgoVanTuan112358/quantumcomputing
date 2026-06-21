@@ -28,6 +28,7 @@
         canvas{
             display:block;
             width:100%;
+            max-width:900px;
             height:auto;
             border:1px solid #ddd;
         }
@@ -81,8 +82,8 @@
         }
 
         .pdf-container{
-            width:fit-content;
-            max-width:95vw;
+            width:95vw;
+            max-width:1200px;
             max-height:95vh;
 
             background:#fff;
@@ -153,9 +154,19 @@
             const containerWidth =
                 viewer.clientWidth - 20;
 
+            let zoomFactor;
+
+            if(window.innerWidth >= 1024){
+                zoomFactor = 1.8;      // PC
+            }else if(window.innerWidth >= 768){
+                zoomFactor = 1.4;      // Tablet
+            }else{
+                zoomFactor = 1.15;     // Mobile
+            }
+
             /* scale tự động */
             const scale =
-                (containerWidth / viewport.width) * 1;
+                (containerWidth / viewport.width) * zoomFactor;
 
             /* viewport đã scale */
             const scaledViewport =
