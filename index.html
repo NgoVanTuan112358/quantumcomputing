@@ -95,22 +95,17 @@
             text-align:center;
         }
 
-        .pdf-viewer{
+       .pdf-viewer{
             flex:1;
-
             overflow-y:auto;
-            overflow-x:auto;
-
-            max-height:calc(95vh - 180px);
 
             display:flex;
-            justify-content:center;
-            align-items:flex-start;
+            flex-direction:column;
+            align-items:center;
 
-            margin:10px 0;
+            gap:20px;
 
-            border:1px solid #ddd;
-            border-radius:8px;
+            padding:10px;
         }
     </style>
 </head>
@@ -120,17 +115,7 @@
     <h2>Đọc thử sách</h2>
 
     <div class="pdf-viewer">
-       <canvas id="pdf-render"></canvas>
-    </div>
-
-    <div class="page-info">
-        Trang <span id="page-num">1</span> /
-        <span id="page-count">0</span>
-    </div>
-
-    <div class="controls">
-        <button class="btn" id="prev-page">◀ Trang trước</button>
-        <button class="btn" id="next-page">Trang sau ▶</button>
+       <div class="pdf-viewer" id="pdf-viewer"></div>
     </div>
 
     <div class="contact">
@@ -185,33 +170,40 @@
         });
     };
 
-    const queueRenderPage = num => {
-        if(pageIsRendering){
-            pageNumIsPending = num;
-        }else{
-            renderPage(num);
+    pdfjsLib.getDocument(url).promise.then(async pdf => {
+
+        const viewer =
+            document.getElementById("pdf-viewer");
+
+        for(let pageNum = 1;
+            pageNum <= pdf.numPages;
+            pageNum++){
+
+            const page =
+                await pdf.getPage(pageNum);
+
+            const viewport =
+                page.getViewport({scale:1.5});
+
+            const canvas =
+                document.createElement("canvas");
+
+            const ctx =
+                canvas.getContext("2d");
+
+            canvas.width =
+                viewport.width;
+
+            canvas.height =
+                viewport.height;
+
+            viewer.appendChild(canvas);
+
+            await page.render({
+                canvasContext:ctx,
+                viewport:viewport
+            }).promise;
         }
-    };
-
-    const showPrevPage = () => {
-        if(pageNum <= 1) return;
-        pageNum--;
-        queueRenderPage(pageNum);
-    };
-
-    const showNextPage = () => {
-        if(pageNum >= pdfDoc.numPages) return;
-        pageNum++;
-        queueRenderPage(pageNum);
-    };
-
-    pdfjsLib.getDocument(url).promise.then(pdfDoc_ => {
-        pdfDoc = pdfDoc_;
-
-        document.getElementById('page-count').textContent =
-            pdfDoc.numPages;
-
-        renderPage(pageNum);
     });
 
     document.getElementById('prev-page')
