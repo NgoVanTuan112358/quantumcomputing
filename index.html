@@ -147,33 +147,37 @@
 
             /* viewport gốc */
             const viewport =
-                page.getViewport({ scale: 1 });
+                page.getViewport({ scale: scale });
 
-            /* chiều rộng vùng đọc */
-            const containerWidth =
-                viewer.clientWidth - 20;
-
-            /* scale tự động */
-            const scale =
-                (containerWidth / viewport.width) * 1.35;
-
-            /* viewport đã scale */
-            const scaledViewport =
-                page.getViewport({
-                    scale: scale
-                });
+            const pixelRatio =
+                window.devicePixelRatio || 1;
 
             canvas.width =
-                scaledViewport.width;
+                viewport.width * pixelRatio;
 
             canvas.height =
-                scaledViewport.height;
+                viewport.height * pixelRatio;
 
-            viewer.appendChild(canvas);
+            canvas.style.width =
+                viewport.width + "px";
+
+            canvas.style.height =
+                viewport.height + "px";
+
+            ctx.setTransform(
+                pixelRatio,
+                0,
+                0,
+                pixelRatio,
+                0,
+                0
+            );
+
+            ctx.imageSmoothingEnabled = true;
 
             await page.render({
-                canvasContext:ctx,
-                viewport: scaledViewport
+                canvasContext: ctx,
+                viewport: viewport
             }).promise;
         }
     });
