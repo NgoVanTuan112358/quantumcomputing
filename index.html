@@ -114,9 +114,7 @@
 <div class="pdf-container">
     <h2>Đọc thử sách</h2>
 
-    <div class="pdf-viewer">
-       <div class="pdf-viewer" id="pdf-viewer"></div>
-    </div>
+    <div class="pdf-viewer" id="pdf-viewer"></div>
 
     <div class="contact">
         <a href="https://zalo.me/84901234567" target="_blank">
@@ -133,42 +131,6 @@
 
 <script>
     const url = './sample/quantumcomputing.pdf'; // Tên file PDF
-
-    let pdfDoc = null,
-        pageNum = 1,
-        pageIsRendering = false,
-        pageNumIsPending = null;
-
-    const scale = 1,
-          canvas = document.getElementById('pdf-render'),
-          ctx = canvas.getContext('2d');
-
-    const renderPage = num => {
-        pageIsRendering = true;
-
-        pdfDoc.getPage(num).then(page => {
-            const viewport = page.getViewport({ scale });
-
-            canvas.height = viewport.height;
-            canvas.width = viewport.width;
-
-            const renderCtx = {
-                canvasContext: ctx,
-                viewport
-            };
-
-            page.render(renderCtx).promise.then(() => {
-                pageIsRendering = false;
-
-                if(pageNumIsPending !== null){
-                    renderPage(pageNumIsPending);
-                    pageNumIsPending = null;
-                }
-            });
-
-            document.getElementById('page-num').textContent = num;
-        });
-    };
 
     pdfjsLib.getDocument(url).promise.then(async pdf => {
 
@@ -205,12 +167,6 @@
             }).promise;
         }
     });
-
-    document.getElementById('prev-page')
-        .addEventListener('click', showPrevPage);
-
-    document.getElementById('next-page')
-        .addEventListener('click', showNextPage);
 </script>
 
 </body>
